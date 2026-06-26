@@ -76,6 +76,26 @@ python detect_lanes.py \
 | `q` | Quit |
 | `s` | Toggle turn signal to suppress departure warning during intentional lane changes |
 
+## Output
+
+**Annotated video:** the output video shows a filled lane polygon between the two detected lane lines. The color changes based on the departure state. A white dot at the bottom center marks the ego vehicle position. When a WARNING or DEPARTURE is triggered, a full-width banner appears at the top of the frame.
+
+**Lane polygon colors:**
+```
+Green   ->  SAFE      (ego center is well within the lane)
+Yellow  ->  WARNING   (approaching a lane boundary)
+Red     ->  DEPARTURE (ego has crossed a lane boundary)
+```
+
+**Stats panel (top of frame):**
+```
+Frame: 1200
+FPS:   280.4
+State: SAFE
+```
+
+The output video is saved to `output/lane_output.mp4` by default.
+
 ## Project Structure
 
 ```
