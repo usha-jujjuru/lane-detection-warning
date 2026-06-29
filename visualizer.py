@@ -23,6 +23,9 @@ _ALERT_TEXT = {
 }
 
 
+_POLYGON_ALPHA = 0.25   # lane polygon fill transparency
+
+
 def _clip_line(line, w, h):
     """Clip a line's x endpoints to [0, w] so it stays within the frame."""
     x1, y1, x2, y2 = line
@@ -52,7 +55,7 @@ def draw_lanes(frame: np.ndarray, left_line, right_line,
         pts = np.array([[lx1, ly1], [lx2, ly2],
                         [rx2, ry2], [rx1, ry1]], dtype=np.int32)
         cv2.fillPoly(overlay, [pts], color)
-        frame = cv2.addWeighted(overlay, 0.25, frame, 0.75, 0)
+        frame = cv2.addWeighted(overlay, _POLYGON_ALPHA, frame, 1 - _POLYGON_ALPHA, 0)
 
     if left_c is not None:
         x1, y1, x2, y2 = left_c

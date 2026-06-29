@@ -7,6 +7,7 @@ Supports video files, webcam (--source 0), and RTSP streams.
 import cv2
 import time
 import argparse
+from collections import deque
 from pathlib import Path
 
 from lane_detector import LaneDetector
@@ -44,7 +45,7 @@ def run(source, output_path, smooth_frames, warning_margin, show, no_stats):
                           src_fps, (width, out_h))
 
     frame_num      = 0
-    frame_times    = []
+    frame_times: deque = deque(maxlen=30)
     departure_count = 0
     warning_count   = 0
     signal_active   = False   # turn signal state — toggled with 's' key
@@ -64,26 +65,24 @@ def run(source, output_path, smooth_frames, warning_margin, show, no_stats):
 
         t0 = time.perf_counter()
 
-        # ── Detection ────────────────────────────────────────────────────────
+        # ----------------------------- Detection ------------------------------
         left_line, right_line = detector.detect(frame)
 
-        # ── Departure check ───────────────────────────────────────────────────
+        # -------------------------- Departure check ---------------------------
         result = checker.check(width, height, left_line, right_line,
                                signal_active=signal_active)
 
-        # ── FPS ──────────────────────────────────────────────────────────────
+        # -------------------------------- FPS ---------------------------------
         frame_times.append(time.perf_counter() - t0)
-        if len(frame_times) > 30:
-            frame_times.pop(0)
         fps = 1.0 / (sum(frame_times) / len(frame_times))
 
-        # ── Counters ─────────────────────────────────────────────────────────
+        # ------------------------------ Counters ------------------------------
         if result.state == DepartureState.DEPARTURE:
             departure_count += 1
         elif result.state == DepartureState.WARNING:
             warning_count += 1
 
-        # ── Visualise ─────────────────────────────────────────────────────────
+        # ----------------------------- Visualise ------------------------------
         frame = draw_lanes(frame, left_line, right_line, result)
         frame = draw_alert(frame, result)
         if not no_stats:
